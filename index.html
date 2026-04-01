@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setenta30 — Prospectos</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --red: #d42b2b;
+    --red-dark: #b02020;
+    --yellow: #f5c800;
+    --text: #f0f0f0;
+    --text-muted: #666;
+    --success: #4ade80;
+    --error: #f87171;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  .header {
+    background: #0a0a0a;
+    border-bottom: 2px solid var(--red);
+    padding: 0 20px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+
+  .logo { display: flex; align-items: center; }
+
+  .logo-mark {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: -1px;
+    color: var(--text);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .logo-mark span { color: var(--red); }
+
+  .logo-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .admin-btn {
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0 18px;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .admin-btn:hover { color: var(--yellow); border-left-color: var(--yellow); }
+
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab.active { color: var(--text); border-bottom-color: var(--red); }
+
+  .content { padding: 24px 20px; max-width: 600px; margin: 0 auto; }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+
+  .field label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .field input, .field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    transition: border-color 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .field input:focus, .field select:focus { border-color: var(--red); }
+  .field input::placeholder { color: #333; }
+  .field select option { background: var(--surface2); }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 6px;
+    transition: background 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover { background: var(--red-dark); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .records-header { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .search-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    flex: 1;
+    min-width: 160px;
+    transition: border-color 0.15s;
+  }
+
+  .search-box:focus { border-color: var(--red); }
+  .search-box::placeholder { color: #333; }
+
+  .btn-export {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .btn-export:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  .record-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .record-count strong { color: var(--red); }
+
+  .record-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .record-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+
+  .record-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .record-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .record-details { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--text-muted); font-weight: 300; }
+
+  .record-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  .record-meta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #444;
+  }
+
+  .btn-delete {
+    background: transparent;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.15s;
+    padding: 4px 0;
+  }
+
+  .btn-delete:hover { color: var(--error); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 36px; opacity: 0.3; margin-bottom: 12px; }
+  .empty-state p { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--red);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 28px 24px 40px;
+    animation: slideUp 0.28s ease-out;
+  }
+
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle { width: 36px; height: 3px; background: var(--border); border-radius: 2px; margin: 0 auto 24px; }
+
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .modal-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; font-weight: 300; }
+
+  .login-section { display: flex; flex-direction: column; gap: 12px; }
+
+  .btn-confirm {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-confirm:hover { background: var(--red-dark); }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 13px;
+    border-radius: var(--radius);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+  }
+
+  .btn-cancel:hover { border-color: #555; color: var(--text); }
+
+  .admin-section { margin-bottom: 26px; }
+
+  .admin-section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; min-height: 32px; }
+
+  .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tag-remove { cursor: pointer; color: var(--text-muted); font-size: 16px; line-height: 1; transition: color 0.15s; }
+  .tag-remove:hover { color: var(--error); }
+
+  .add-tag-row { display: flex; gap: 8px; }
+
+  .add-tag-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .add-tag-input:focus { border-color: var(--red); }
+
+  .btn-add-tag {
+    background: var(--red);
+    border: none;
+    color: #fff;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 18px;
+    transition: background 0.15s;
+  }
+
+  .btn-add-tag:hover { background: var(--red-dark); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .sheets-url-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .sheets-url-field label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .sheets-url-field input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 12px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .sheets-url-field input:focus { border-color: var(--red); }
+  .sheets-url-field input::placeholder { color: #333; font-size: 12px; }
+
+  .connection-status {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; flex-shrink: 0; }
+  .status-dot.connected { background: var(--success); }
+
+  .btn-save-admin {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 6px;
+    transition: background 0.15s;
+  }
+
+  .btn-save-admin:hover { background: var(--red-dark); }
+
+  .sending-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sending-overlay.open { display: flex; }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .sending-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--success);
+    color: var(--text);
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.error { border-left-color: var(--error); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (min-width: 480px) {
+    .modal { border-radius: 10px; margin: 20px; border-bottom: 1px solid var(--border); max-height: 90vh; }
+    .modal-overlay { align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div>
+      <div class="logo-mark">SETENTA<span>30</span></div>
+      <span class="logo-sub">Prospectos</span>
+    </div>
+  </div>
+  <button class="admin-btn" onclick="openAdmin()">⚙ Admin</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-form" onclick="switchTab('form')">Nuevo</div>
+  <div class="tab" id="tab-records" onclick="switchTab('records')">Registros</div>
+</div>
+
+<div class="content" id="panel-form">
+  <div class="section-label">Datos del prospecto</div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Nombre del negocio *</label>
+      <input type="text" id="f-nombre" placeholder="Ej: Kiosco El Sol">
+    </div>
+    <div class="field">
+      <label>Dirección *</label>
+      <input type="text" id="f-direccion" placeholder="Calle, número, barrio">
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Tipo de negocio *</label>
+        <select id="f-tipo"><option value="">Seleccionar...</option></select>
+      </div>
+      <div class="field">
+        <label>Zona</label>
+        <select id="f-zona"><option value="">Seleccionar...</option></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Teléfono</label>
+      <input type="tel" id="f-telefono" placeholder="Ej: 351 1234567">
+    </div>
+    <div class="field">
+      <label>Vendedor *</label>
+      <select id="f-vendedor"><option value="">Seleccionar...</option></select>
+    </div>
+    <div class="field">
+      <label>Observaciones</label>
+      <input type="text" id="f-observaciones" placeholder="Notas adicionales (opcional)">
+    </div>
+    <button class="btn-primary" onclick="submitForm()" id="btn-submit">Guardar prospecto</button>
+  </div>
+</div>
+
+<div class="content" id="panel-records" style="display:none">
+  <div class="records-header">
+    <input type="text" class="search-box" id="search-input" placeholder="Buscar por nombre, zona, tipo..." oninput="renderRecords()">
+    <button class="btn-export" onclick="exportExcel()">↓ Excel</button>
+  </div>
+  <div class="record-count" id="record-count"></div>
+  <div id="records-list"></div>
+</div>
+
+<div class="modal-overlay" id="admin-overlay" onclick="closeAdminOnBg(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+
+    <div id="admin-login">
+      <div class="modal-title">Administración</div>
+      <div class="modal-subtitle">Ingresá la contraseña para continuar</div>
+      <div class="login-section">
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()">
+        </div>
+        <button class="btn-confirm" onclick="checkPass()">Ingresar</button>
+        <button class="btn-cancel" onclick="closeAdmin()">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="admin-panel" style="display:none">
+      <div class="modal-title">Configuración</div>
+      <div class="modal-subtitle">Administrá los desplegables y la conexión a Google Sheets</div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">Tipos de negocio</div>
+        <div class="tag-list" id="tags-tipos"></div>
+        <div class="add-tag-row">
+          <input type="text" class="add-tag-input" id="input-tipo" placeholder="Ej: Kiosco" onkeydown="if(event.key==='Enter')addTag('tipos','input-tipo')">
+          <button class="btn-add-tag" onclick="addTag('tipos','input-tipo')">+</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="admin-section">
+        <div class="admin-section-title">Zonas</div>
+        <div class="tag-list" id="tags-zonas"></div>
+        <div class="add-tag-row">
+          <input type="text" class="add-tag-input" id="input-zona" placeholder="Ej: Norte" onkeydown="if(event.key==='Enter')addTag('zonas','input-zona')">
+          <button class="btn-add-tag" onclick="addTag('zonas','input-zona')">+</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="admin-section">
+        <div class="admin-section-title">Vendedores</div>
+        <div class="tag-list" id="tags-vendedores"></div>
+        <div class="add-tag-row">
+          <input type="text" class="add-tag-input" id="input-vendedor" placeholder="Ej: Ezequiel" onkeydown="if(event.key==='Enter')addTag('vendedores','input-vendedor')">
+          <button class="btn-add-tag" onclick="addTag('vendedores','input-vendedor')">+</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="admin-section">
+        <div class="admin-section-title">Conexión a Google Sheets</div>
+        <div class="sheets-url-field">
+          <label>URL del Web App (Apps Script)</label>
+          <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/...">
+          <div class="connection-status">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">Sin configurar</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-save-admin" onclick="saveAdminConfig()">Guardar configuración</button>
+      <br><br>
+      <button class="btn-cancel" onclick="closeAdmin()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="sending-overlay" id="sending-overlay">
+  <div class="spinner"></div>
+  <div class="sending-text">Guardando...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASSWORD = 'fede1234';
+let config = { tipos: ['Kiosco', 'Almacén', 'Vinoteca', 'Despensa', 'Supermercado', 'Bar / Restó'], zonas: [], vendedores: [], sheetsUrl: '' };
+let records = [];
+
+function init() {
+  const sc = localStorage.getItem('prospector_config');
+  if (sc) config = JSON.parse(sc);
+  const sr = localStorage.getItem('prospector_records');
+  if (sr) records = JSON.parse(sr);
+  populateDropdowns(); renderRecords();
+}
+
+function populateDropdowns() {
+  populateSelect('f-tipo', config.tipos);
+  populateSelect('f-zona', config.zonas);
+  populateSelect('f-vendedor', config.vendedores);
+}
+
+function populateSelect(id, items) {
+  const sel = document.getElementById(id);
+  const first = sel.options[0];
+  sel.innerHTML = ''; sel.appendChild(first);
+  items.forEach(item => { const opt = document.createElement('option'); opt.value = item; opt.textContent = item; sel.appendChild(opt); });
+}
+
+function switchTab(tab) {
+  document.getElementById('panel-form').style.display = tab === 'form' ? 'block' : 'none';
+  document.getElementById('panel-records').style.display = tab === 'records' ? 'block' : 'none';
+  document.getElementById('tab-form').classList.toggle('active', tab === 'form');
+  document.getElementById('tab-records').classList.toggle('active', tab === 'records');
+  if (tab === 'records') renderRecords();
+}
+
+async function submitForm() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const direccion = document.getElementById('f-direccion').value.trim();
+  const tipo = document.getElementById('f-tipo').value;
+  const zona = document.getElementById('f-zona').value;
+  const telefono = document.getElementById('f-telefono').value.trim();
+  const vendedor = document.getElementById('f-vendedor').value;
+  const observaciones = document.getElementById('f-observaciones').value.trim();
+
+  if (!nombre || !direccion || !tipo || !vendedor) { showToast('Completá los campos obligatorios (*)', true); return; }
+
+  const record = { id: Date.now(), fecha: new Date().toLocaleDateString('es-AR'), hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }), nombre, direccion, tipo, zona, telefono, vendedor, observaciones };
+  records.unshift(record);
+  localStorage.setItem('prospector_records', JSON.stringify(records));
+
+  if (config.sheetsUrl) {
+    document.getElementById('sending-overlay').classList.add('open');
+    document.getElementById('btn-submit').disabled = true;
+    try {
+      const params = new URLSearchParams({ nombre: record.nombre, direccion: record.direccion, tipo: record.tipo, zona: record.zona||'', telefono: record.telefono||'', vendedor: record.vendedor, observaciones: record.observaciones||'', fecha: record.fecha, hora: record.hora });
+      await fetch(config.sheetsUrl + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+      showToast('Guardado y enviado a Sheets');
+    } catch(e) { showToast('Guardado localmente (sin conexión)', true); }
+    finally { document.getElementById('sending-overlay').classList.remove('open'); document.getElementById('btn-submit').disabled = false; }
+  } else { showToast('Prospecto guardado'); }
+
+  ['f-nombre','f-direccion','f-telefono','f-observaciones'].forEach(id => document.getElementById(id).value = '');
+  ['f-tipo','f-zona','f-vendedor'].forEach(id => document.getElementById(id).selectedIndex = 0);
+  document.getElementById('f-nombre').focus();
+}
+
+function renderRecords() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = records.filter(r => r.nombre.toLowerCase().includes(q) || r.tipo.toLowerCase().includes(q) || (r.zona||'').toLowerCase().includes(q) || r.vendedor.toLowerCase().includes(q) || r.direccion.toLowerCase().includes(q));
+  document.getElementById('record-count').innerHTML = `<strong>${filtered.length}</strong> prospecto${filtered.length !== 1 ? 's' : ''}`;
+  const list = document.getElementById('records-list');
+  if (filtered.length === 0) { list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${q ? 'Sin resultados' : 'Sin prospectos cargados'}</p></div>`; return; }
+  list.innerHTML = filtered.map(r => `
+    <div class="record-card">
+      <div class="record-top">
+        <div class="record-name">${r.nombre}</div>
+        <div class="record-badge">${r.tipo}</div>
+      </div>
+      <div class="record-details">
+        <span>📍 ${r.direccion}${r.zona ? ' · ' + r.zona : ''}</span>
+        ${r.telefono ? `<span>📞 ${r.telefono}</span>` : ''}
+        ${r.observaciones ? `<span>💬 ${r.observaciones}</span>` : ''}
+      </div>
+      <div class="record-footer">
+        <div class="record-meta">${r.vendedor} · ${r.fecha} ${r.hora}</div>
+        <button class="btn-delete" onclick="deleteRecord(${r.id})">Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+
+function deleteRecord(id) {
+  if (!confirm('¿Eliminar este prospecto?')) return;
+  records = records.filter(r => r.id !== id);
+  localStorage.setItem('prospector_records', JSON.stringify(records));
+  renderRecords();
+}
+
+function exportExcel() {
+  if (records.length === 0) { showToast('No hay registros para exportar', true); return; }
+  const headers = ['Nombre','Dirección','Tipo','Zona','Teléfono','Vendedor','Observaciones','Fecha','Hora'];
+  const rows = records.map(r => [r.nombre, r.direccion, r.tipo, r.zona||'', r.telefono||'', r.vendedor, r.observaciones||'', r.fecha, r.hora]);
+  let csv = '\uFEFF' + headers.join(';') + '\n';
+  rows.forEach(row => { csv += row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';') + '\n'; });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.href = url; a.download = `prospectos_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.csv`;
+  a.click(); URL.revokeObjectURL(url); showToast('Archivo descargado');
+}
+
+function openAdmin() {
+  document.getElementById('admin-overlay').classList.add('open');
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+  setTimeout(() => document.getElementById('admin-pass').focus(), 300);
+}
+
+function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); }
+function closeAdminOnBg(e) { if (e.target === document.getElementById('admin-overlay')) closeAdmin(); }
+
+function checkPass() {
+  if (document.getElementById('admin-pass').value === ADMIN_PASSWORD) {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadAdminPanel();
+  } else { showToast('Contraseña incorrecta', true); document.getElementById('admin-pass').value = ''; }
+}
+
+function loadAdminPanel() {
+  renderTags('tipos', config.tipos); renderTags('zonas', config.zonas); renderTags('vendedores', config.vendedores);
+  document.getElementById('sheets-url').value = config.sheetsUrl || '';
+  updateConnectionStatus();
+}
+
+function renderTags(key, items) {
+  const c = document.getElementById('tags-' + key);
+  c.innerHTML = items.length === 0
+    ? `<span style="font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase">Sin opciones</span>`
+    : items.map((item, i) => `<div class="tag">${item}<span class="tag-remove" onclick="removeTag('${key}',${i})">×</span></div>`).join('');
+}
+
+function addTag(key, inputId) {
+  const input = document.getElementById(inputId); const val = input.value.trim();
+  if (!val) return;
+  if (config[key].includes(val)) { showToast('Ya existe esa opción', true); return; }
+  config[key].push(val); input.value = ''; renderTags(key, config[key]);
+}
+
+function removeTag(key, index) { config[key].splice(index, 1); renderTags(key, config[key]); }
+
+function updateConnectionStatus() {
+  const dot = document.getElementById('status-dot'); const text = document.getElementById('status-text');
+  if (config.sheetsUrl) { dot.className = 'status-dot connected'; text.textContent = 'URL configurada'; }
+  else { dot.className = 'status-dot'; text.textContent = 'Sin configurar'; }
+}
+
+function saveAdminConfig() {
+  config.sheetsUrl = document.getElementById('sheets-url').value.trim();
+  localStorage.setItem('prospector_config', JSON.stringify(config));
+  populateDropdowns(); updateConnectionStatus(); showToast('Configuración guardada');
+}
+
+let toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  clearTimeout(toastTimer); setTimeout(() => t.classList.add('show'), 10);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>
