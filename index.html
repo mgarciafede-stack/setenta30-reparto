@@ -561,6 +561,33 @@
   .toast.error { border-left-color: var(--error); }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* Banner de carga inicial */
+  .loading-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .loading-banner .spinner-sm {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+  }
+
   @media (min-width: 480px) {
     .modal { border-radius: 10px; margin: 20px; border-bottom: 1px solid var(--border); max-height: 90vh; }
     .modal-overlay { align-items: center; }
@@ -585,6 +612,10 @@
 </div>
 
 <div class="content" id="panel-form">
+  <div id="loading-banner" class="loading-banner">
+    <div class="spinner-sm"></div>
+    Cargando configuración...
+  </div>
   <div class="section-label">Datos del prospecto</div>
   <div class="form-grid">
     <div class="field">
@@ -649,7 +680,7 @@
 
     <div id="admin-panel" style="display:none">
       <div class="modal-title">Configuración</div>
-      <div class="modal-subtitle">Administrá los desplegables y la conexión a Google Sheets</div>
+      <div class="modal-subtitle">Los cambios se sincronizan en todos los dispositivos</div>
 
       <div class="admin-section">
         <div class="admin-section-title">Tipos de negocio</div>
@@ -705,82 +736,142 @@
 
 <div class="sending-overlay" id="sending-overlay">
   <div class="spinner"></div>
-  <div class="sending-text">Guardando...</div>
+  <div class="sending-text" id="sending-text">Guardando...</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── CONSTANTES ───────────────────────────────────────────────────────────────
+
 const ADMIN_PASSWORD = 'fede1234';
-let config = { tipos: ['Kiosco', 'Almacén', 'Vinoteca', 'Despensa', 'Supermercado', 'Bar / Restó'], zonas: [], vendedores: [], sheetsUrl: '' };
+
+// URL hardcodeada del Apps Script — la misma que ya usabas
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzCRTWlEcRftwGTtusbVuyH5ITlJRI1K9mI0L7eaOjiYP7sa_JWQPRnn3t4zbYPiw/exec';
+
+// Config en memoria (se carga desde Sheets al iniciar)
+let config = {
+  tipos: ['Kiosco', 'Almacén', 'Vinoteca', 'Despensa', 'Supermercado', 'Bar / Restó'],
+  zonas: ['Yofre Norte','Yofre Sur','Pueyrredon','Talleres','Santa Clara','Los Pinos','San Jorge','Villa Corina','Patricios','Patricios Este','Ampliación Residencial America','General Savio','Mosconi','General Bustos','Alta Cordoba','Villa Esquiu','Liceo'],
+  vendedores: ['Nico Altamirano']
+};
+
+// Registros siguen en localStorage (son locales por diseño)
 let records = [];
 
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
 function init() {
-  const sc = localStorage.getItem('prospector_config');
-  if (sc) config = JSON.parse(sc);
   const sr = localStorage.getItem('prospector_records');
   if (sr) records = JSON.parse(sr);
-  populateDropdowns(); renderRecords();
+  populateDropdowns();
+  document.getElementById('loading-banner').style.display = 'none';
+  renderRecords();
 }
 
+// ─── DROPDOWNS ────────────────────────────────────────────────────────────────
+
 function populateDropdowns() {
-  populateSelect('f-tipo', config.tipos);
-  populateSelect('f-zona', config.zonas);
+  populateSelect('f-tipo',     config.tipos);
+  populateSelect('f-zona',     config.zonas);
   populateSelect('f-vendedor', config.vendedores);
 }
 
 function populateSelect(id, items) {
-  const sel = document.getElementById(id);
-  const first = sel.options[0];
-  sel.innerHTML = ''; sel.appendChild(first);
-  items.forEach(item => { const opt = document.createElement('option'); opt.value = item; opt.textContent = item; sel.appendChild(opt); });
+  const sel   = document.getElementById(id);
+  const saved = sel.value;
+  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  items.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item; opt.textContent = item;
+    sel.appendChild(opt);
+  });
+  if (saved) sel.value = saved;
 }
 
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+
 function switchTab(tab) {
-  document.getElementById('panel-form').style.display = tab === 'form' ? 'block' : 'none';
+  document.getElementById('panel-form').style.display    = tab === 'form'    ? 'block' : 'none';
   document.getElementById('panel-records').style.display = tab === 'records' ? 'block' : 'none';
-  document.getElementById('tab-form').classList.toggle('active', tab === 'form');
+  document.getElementById('tab-form').classList.toggle('active',    tab === 'form');
   document.getElementById('tab-records').classList.toggle('active', tab === 'records');
   if (tab === 'records') renderRecords();
 }
 
+// ─── FORMULARIO ───────────────────────────────────────────────────────────────
+
 async function submitForm() {
-  const nombre = document.getElementById('f-nombre').value.trim();
-  const direccion = document.getElementById('f-direccion').value.trim();
-  const tipo = document.getElementById('f-tipo').value;
-  const zona = document.getElementById('f-zona').value;
-  const telefono = document.getElementById('f-telefono').value.trim();
-  const vendedor = document.getElementById('f-vendedor').value;
+  const nombre       = document.getElementById('f-nombre').value.trim();
+  const direccion    = document.getElementById('f-direccion').value.trim();
+  const tipo         = document.getElementById('f-tipo').value;
+  const zona         = document.getElementById('f-zona').value;
+  const telefono     = document.getElementById('f-telefono').value.trim();
+  const vendedor     = document.getElementById('f-vendedor').value;
   const observaciones = document.getElementById('f-observaciones').value.trim();
 
-  if (!nombre || !direccion || !tipo || !vendedor) { showToast('Completá los campos obligatorios (*)', true); return; }
+  if (!nombre || !direccion || !tipo || !vendedor) {
+    showToast('Completá los campos obligatorios (*)', true);
+    return;
+  }
 
-  const record = { id: Date.now(), fecha: new Date().toLocaleDateString('es-AR'), hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }), nombre, direccion, tipo, zona, telefono, vendedor, observaciones };
+  const record = {
+    id: Date.now(),
+    fecha: new Date().toLocaleDateString('es-AR'),
+    hora:  new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+    nombre, direccion, tipo, zona, telefono, vendedor, observaciones
+  };
+
   records.unshift(record);
   localStorage.setItem('prospector_records', JSON.stringify(records));
 
-  if (config.sheetsUrl) {
-    document.getElementById('sending-overlay').classList.add('open');
-    document.getElementById('btn-submit').disabled = true;
-    try {
-      const params = new URLSearchParams({ nombre: record.nombre, direccion: record.direccion, tipo: record.tipo, zona: record.zona||'', telefono: record.telefono||'', vendedor: record.vendedor, observaciones: record.observaciones||'', fecha: record.fecha, hora: record.hora });
-      await fetch(config.sheetsUrl + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-      showToast('Guardado y enviado a Sheets');
-    } catch(e) { showToast('Guardado localmente (sin conexión)', true); }
-    finally { document.getElementById('sending-overlay').classList.remove('open'); document.getElementById('btn-submit').disabled = false; }
-  } else { showToast('Prospecto guardado'); }
+  // Enviar a Sheets
+  document.getElementById('sending-overlay').classList.add('open');
+  document.getElementById('sending-text').textContent = 'Guardando...';
+  document.getElementById('btn-submit').disabled = true;
+
+  try {
+    const params = new URLSearchParams({
+      action: 'guardarProspecto',
+      nombre: record.nombre, direccion: record.direccion,
+      tipo: record.tipo, zona: record.zona || '',
+      telefono: record.telefono || '', vendedor: record.vendedor,
+      observaciones: record.observaciones || '',
+      fecha: record.fecha, hora: record.hora
+    });
+    await fetch(SHEETS_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+    showToast('Prospecto guardado y enviado ✓');
+  } catch(e) {
+    showToast('Guardado localmente (sin conexión)', true);
+  } finally {
+    document.getElementById('sending-overlay').classList.remove('open');
+    document.getElementById('btn-submit').disabled = false;
+  }
 
   ['f-nombre','f-direccion','f-telefono','f-observaciones'].forEach(id => document.getElementById(id).value = '');
   ['f-tipo','f-zona','f-vendedor'].forEach(id => document.getElementById(id).selectedIndex = 0);
   document.getElementById('f-nombre').focus();
 }
 
+// ─── REGISTROS ────────────────────────────────────────────────────────────────
+
 function renderRecords() {
   const q = document.getElementById('search-input').value.toLowerCase();
-  const filtered = records.filter(r => r.nombre.toLowerCase().includes(q) || r.tipo.toLowerCase().includes(q) || (r.zona||'').toLowerCase().includes(q) || r.vendedor.toLowerCase().includes(q) || r.direccion.toLowerCase().includes(q));
-  document.getElementById('record-count').innerHTML = `<strong>${filtered.length}</strong> prospecto${filtered.length !== 1 ? 's' : ''}`;
+  const filtered = records.filter(r =>
+    r.nombre.toLowerCase().includes(q) ||
+    r.tipo.toLowerCase().includes(q) ||
+    (r.zona||'').toLowerCase().includes(q) ||
+    r.vendedor.toLowerCase().includes(q) ||
+    r.direccion.toLowerCase().includes(q)
+  );
+  document.getElementById('record-count').innerHTML =
+    `<strong>${filtered.length}</strong> prospecto${filtered.length !== 1 ? 's' : ''}`;
+
   const list = document.getElementById('records-list');
-  if (filtered.length === 0) { list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${q ? 'Sin resultados' : 'Sin prospectos cargados'}</p></div>`; return; }
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${q ? 'Sin resultados' : 'Sin prospectos cargados'}</p></div>`;
+    return;
+  }
   list.innerHTML = filtered.map(r => `
     <div class="record-card">
       <div class="record-top">
@@ -789,7 +880,7 @@ function renderRecords() {
       </div>
       <div class="record-details">
         <span>📍 ${r.direccion}${r.zona ? ' · ' + r.zona : ''}</span>
-        ${r.telefono ? `<span>📞 ${r.telefono}</span>` : ''}
+        ${r.telefono     ? `<span>📞 ${r.telefono}</span>`     : ''}
         ${r.observaciones ? `<span>💬 ${r.observaciones}</span>` : ''}
       </div>
       <div class="record-footer">
@@ -813,34 +904,44 @@ function exportExcel() {
   let csv = '\uFEFF' + headers.join(';') + '\n';
   rows.forEach(row => { csv += row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';') + '\n'; });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob); const a = document.createElement('a');
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   a.href = url; a.download = `prospectos_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.csv`;
-  a.click(); URL.revokeObjectURL(url); showToast('Archivo descargado');
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Archivo descargado');
 }
+
+// ─── ADMIN ────────────────────────────────────────────────────────────────────
 
 function openAdmin() {
   document.getElementById('admin-overlay').classList.add('open');
-  document.getElementById('admin-login').style.display = 'block';
-  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-login').style.display  = 'block';
+  document.getElementById('admin-panel').style.display  = 'none';
   document.getElementById('admin-pass').value = '';
   setTimeout(() => document.getElementById('admin-pass').focus(), 300);
 }
 
-function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); }
-function closeAdminOnBg(e) { if (e.target === document.getElementById('admin-overlay')) closeAdmin(); }
+function closeAdmin()           { document.getElementById('admin-overlay').classList.remove('open'); }
+function closeAdminOnBg(e)      { if (e.target === document.getElementById('admin-overlay')) closeAdmin(); }
 
 function checkPass() {
   if (document.getElementById('admin-pass').value === ADMIN_PASSWORD) {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
     loadAdminPanel();
-  } else { showToast('Contraseña incorrecta', true); document.getElementById('admin-pass').value = ''; }
+  } else {
+    showToast('Contraseña incorrecta', true);
+    document.getElementById('admin-pass').value = '';
+  }
 }
 
 function loadAdminPanel() {
-  renderTags('tipos', config.tipos); renderTags('zonas', config.zonas); renderTags('vendedores', config.vendedores);
-  document.getElementById('sheets-url').value = config.sheetsUrl || '';
-  updateConnectionStatus();
+  renderTags('tipos',      config.tipos);
+  renderTags('zonas',      config.zonas);
+  renderTags('vendedores', config.vendedores);
+  document.getElementById('sheets-url').value = SHEETS_URL;
+  document.getElementById('status-dot').className  = 'status-dot connected';
+  document.getElementById('status-text').textContent = 'URL configurada';
 }
 
 function renderTags(key, items) {
@@ -851,34 +952,60 @@ function renderTags(key, items) {
 }
 
 function addTag(key, inputId) {
-  const input = document.getElementById(inputId); const val = input.value.trim();
+  const input = document.getElementById(inputId);
+  const val   = input.value.trim();
   if (!val) return;
   if (config[key].includes(val)) { showToast('Ya existe esa opción', true); return; }
-  config[key].push(val); input.value = ''; renderTags(key, config[key]);
+  config[key].push(val);
+  input.value = '';
+  renderTags(key, config[key]);
 }
 
-function removeTag(key, index) { config[key].splice(index, 1); renderTags(key, config[key]); }
-
-function updateConnectionStatus() {
-  const dot = document.getElementById('status-dot'); const text = document.getElementById('status-text');
-  if (config.sheetsUrl) { dot.className = 'status-dot connected'; text.textContent = 'URL configurada'; }
-  else { dot.className = 'status-dot'; text.textContent = 'Sin configurar'; }
+function removeTag(key, index) {
+  config[key].splice(index, 1);
+  renderTags(key, config[key]);
 }
 
-function saveAdminConfig() {
-  config.sheetsUrl = document.getElementById('sheets-url').value.trim();
-  localStorage.setItem('prospector_config', JSON.stringify(config));
-  populateDropdowns(); updateConnectionStatus(); showToast('Configuración guardada');
+async function saveAdminConfig() {
+  document.getElementById('sending-overlay').classList.add('open');
+  document.getElementById('sending-text').textContent = 'Sincronizando...';
+
+  try {
+    const params = new URLSearchParams({
+      action:      'guardarConfig',
+      tipos:       config.tipos.join('||'),
+      zonas:       config.zonas.join('||'),
+      vendedores:  config.vendedores.join('||'),
+      sheetsUrl:   SHEETS_URL
+    });
+    const res  = await fetch(SHEETS_URL + '?' + params.toString(), { mode: 'cors' });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      populateDropdowns();
+      showToast('Configuración guardada en todos los dispositivos ✓');
+    } else {
+      showToast('Error al guardar en Sheets', true);
+    }
+  } catch(e) {
+    showToast('Sin conexión — config no guardada', true);
+  } finally {
+    document.getElementById('sending-overlay').classList.remove('open');
+  }
 }
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
 
 let toastTimer;
 function showToast(msg, isError = false) {
-  const t = document.getElementById('toast'); t.textContent = msg;
-  t.className = 'toast' + (isError ? ' error' : '');
-  clearTimeout(toastTimer); setTimeout(() => t.classList.add('show'), 10);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add('show'), 10);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ─── ARRANCAR ─────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>
